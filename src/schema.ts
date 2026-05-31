@@ -1,6 +1,8 @@
 import { Database } from "sqlite";
 
-export async function createSchema(db: Database) {
+export async function createSchema(db: Database, verbose: boolean) {
+  const log = (msg: string) => { if (verbose) console.log(msg); };
+
   // 1. Customers table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS customers (
@@ -15,6 +17,7 @@ export async function createSchema(db: Database) {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     `);
+  log("Created table: customers");
 
   // 2. Addresses table
   await db.exec(`
@@ -33,6 +36,7 @@ export async function createSchema(db: Database) {
         FOREIGN KEY (customer_id) REFERENCES customers(id)
     )
     `);
+  log("Created table: addresses");
 
   // 3. Categories table
   await db.exec(`
@@ -46,6 +50,7 @@ export async function createSchema(db: Database) {
         FOREIGN KEY (parent_category_id) REFERENCES categories(id)
     )
     `);
+  log("Created table: categories");
 
   // 4. Products table
   await db.exec(`
@@ -64,6 +69,7 @@ export async function createSchema(db: Database) {
         FOREIGN KEY (category_id) REFERENCES categories(id)
     )
     `);
+  log("Created table: products");
 
   // 5. Inventory table
   await db.exec(`
@@ -80,6 +86,7 @@ export async function createSchema(db: Database) {
         UNIQUE(product_id, warehouse_id)
     )
     `);
+  log("Created table: inventory");
 
   // 6. Warehouses table
   await db.exec(`
@@ -93,6 +100,7 @@ export async function createSchema(db: Database) {
         is_active BOOLEAN DEFAULT 1
     )
     `);
+  log("Created table: warehouses");
 
   // 7. Orders table
   await db.exec(`
@@ -115,6 +123,7 @@ export async function createSchema(db: Database) {
         FOREIGN KEY (billing_address_id) REFERENCES addresses(id)
     )
     `);
+  log("Created table: orders");
 
   // 8. Order items table
   await db.exec(`
@@ -131,6 +140,7 @@ export async function createSchema(db: Database) {
         FOREIGN KEY (product_id) REFERENCES products(id)
     )
     `);
+  log("Created table: order_items");
 
   // 9. Reviews table
   await db.exec(`
@@ -151,6 +161,7 @@ export async function createSchema(db: Database) {
         UNIQUE(product_id, customer_id, order_id)
     )
     `);
+  log("Created table: reviews");
 
   // 10. Customer segments table
   await db.exec(`
@@ -164,6 +175,7 @@ export async function createSchema(db: Database) {
         FOREIGN KEY (customer_id) REFERENCES customers(id)
     )
     `);
+  log("Created table: customer_segments");
 
   // 11. Promotions table
   await db.exec(`
@@ -181,6 +193,7 @@ export async function createSchema(db: Database) {
         is_active BOOLEAN DEFAULT 1
     )
     `);
+  log("Created table: promotions");
 
   // 12. Customer activity log table
   await db.exec(`
@@ -195,4 +208,5 @@ export async function createSchema(db: Database) {
         FOREIGN KEY (customer_id) REFERENCES customers(id)
     )
     `);
+  log("Created table: customer_activity_log");
 }

@@ -1,5 +1,37 @@
 import { Database } from "sqlite";
 
+export interface PendingOrder {
+  order_id: number;
+  order_number: string;
+  created_at: string;
+  days_pending: number;
+  customer_first_name: string;
+  customer_last_name: string;
+  customer_phone: string | null;
+}
+
+export async function getOverduePendingOrders(
+  db: Database,
+  days: number = 3
+): Promise<PendingOrder[]> {
+  return db.all(
+    `SELECT
+       o.id          AS order_id,
+       o.order_number,
+       o.created_at,
+       CAST(julianday('now') - julianday(o.created_at) AS INTEGER) AS days_pending,
+       c.first_name  AS customer_first_name,
+       c.last_name   AS customer_last_name,
+       c.phone       AS customer_phone
+     FROM orders o
+     JOIN customers c ON c.id = o.customer_id
+     WHERE o.status = 'pending'
+       AND julianday('now') - julianday(o.created_at) > ?
+     ORDER BY o.created_at ASC`,
+    [days]
+  );
+}
+
 interface OrderItem {
   order_item_id: number;
   product_id: number;
